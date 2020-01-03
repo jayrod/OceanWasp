@@ -6,8 +6,11 @@ __version__ = "0.1.0dev"
 
 import sys
 import argparse
-from ipaddress import ip_address
 from pathlib import Path
+from typing import Tuple
+from ipaddress import ip_address
+
+from tabulate import tabulate 
 
 from OceanWasp.top1kports import PORTS
 
@@ -33,13 +36,14 @@ def validate_input(args) -> ip_address:
         sys.exit()
 
     #Input check file 
-    if Path(args.output).is_dir():
-        print(err_msg("Given argument is a path and not a file"))
-        sys.exit()
+    if args.output:
+        if Path(args.output).is_dir():
+            print(err_msg("Given argument is a path and not a file"))
+            sys.exit()
 
     return ip
 
-def create_info_table(scanner : PortScanner) -> str:
+def create_md_table(scanner : PortScanner) -> Tuple[list, list]:
     columns = ["Host", "Port", "Service Name", "Product", "Version", "Extra Info", "Platform Enumeration"]
     full_table = []
 
@@ -55,15 +59,21 @@ def create_info_table(scanner : PortScanner) -> str:
 
                     full_table.append([scanned_host, str(port), serv_name, serv_prod, serv_ver, serv_extra, serv_cpe])
 
+    return columns, full_table
+
+def render_md_table(columns: list, full_table: list) -> str:
     return Table(columns, full_table).render()
 
+
+def render_tab_table(columns: list, full_table: list) -> str:
+    return tabulate(full_table, headers=columns, tablefmt="fancy_grid")
 
 def main():
     print("Executing OceanWasp version %s." % __version__)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("target_host", help="IP address for target.")
-    parser.add_argument("output", help="File to append data.")
+    parser.add_argument("-o", "--output", help="File to append data.")
     args = parser.parse_args()
 
     ip = validate_input(args)
@@ -79,9 +89,18 @@ def main():
         print(err_msg("Target host {0} does not appear to be up".format(str(ip))))
         sys.exit()
 
-    md_table = create_info_table(scanner)
+    #create column and output data
+    columns, table = create_md_table(scanner)
 
-    with open(args.output, "a+") as output_file:
-        output_file.write(md_table)
+    #if Output file given then write output to it
+    if args.output:
+        md_table = render_md_table(columns, table)
 
-        
+        with open(args.output, "a+") as output_file:
+            output_file.write("\n")
+            output_file.write(md_table)
+
+    print(msg("Scan Results"))
+    tabulate_table = render_tab_table(columns, table)
+
+    print(tabulate_table)

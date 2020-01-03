@@ -29,7 +29,8 @@ setup(
         },
     install_requires = [
         "markdown-table",
-        "python-nmap"
+        "python-nmap",
+        "tabulate"
     ],
     version = version,
     description = "Custom nmap initial enumeration tool",
