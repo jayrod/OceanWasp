@@ -4,13 +4,14 @@
 
 __version__ = "0.2"
 
-import sys
 import argparse
+import sys
+from ipaddress import ip_address
+from os import environ
 from pathlib import Path
 from typing import Tuple
-from ipaddress import ip_address
 
-from tabulate import tabulate 
+from tabulate import tabulate
 
 from OceanWasp.top1kports import PORTS
 
@@ -29,10 +30,20 @@ def err_msg(message: str) -> str:
 
 def validate_input(args) -> ip_address:
     #determine if the input IP address is inface an IP
+    ip = None
+
     try:
-        ip = ip_address(args.target_host)    
+        #if no target host given
+        if not args.target:
+            #look for RHOST environ var
+            if 'RHOST' in environ.keys():
+                print(msg("Using Environment variable for IP address"))
+                ip = ip_address(environ['RHOST'])
+        else:
+            ip = ip_address(args.target)    
+
     except ValueError:
-        print(err_msg("Argument was not a valid IP address"))
+        print(err_msg("Argument or environment variable was not a valid IP address"))
         sys.exit()
 
     #Input check file 
@@ -111,13 +122,17 @@ def main():
     print("Executing OceanWasp version %s." % __version__)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("target_host", help="IP address for target.")
+    parser.add_argument("--target", help="IP address for target.")
     parser.add_argument("--markdown", help="Markdown File to append data.")
     parser.add_argument("--text", help="Text File to append data.")
     args = parser.parse_args()
 
     ip = validate_input(args)
-    
+   
+    if not ip:
+        print(err_msg("Check IP argument"))
+        sys.exit(-1)
+
     scan_ports = PORTS
     scanner = PortScanner()
 
@@ -154,4 +169,3 @@ def main():
     tabulate_table = render_tab_table(columns, table)
 
     print(tabulate_table)
-
