@@ -205,6 +205,10 @@ def main():
         print(msg("Writing scan results to text file"))
         text = render_text_info(data_dict)
 
+        #if folder doesn't exist then create it
+        if not Path(args.txt).parent.exists():
+            Path(args.txt).parent.mkdir(parents=True)
+
         with open(args.text, "a+") as text_file:
             text_file.write("\n")
             text_file.write(text)
