@@ -2,19 +2,21 @@
 
 """OceanWasp.OceanWasp: provides entry point main()."""
 
-__version__ = "0.4"
+__version__ = "0.5"
 
-import re
 import argparse
+import re
 import sys
+from glob import iglob
 from ipaddress import ip_address
-from os import environ
+from os import curdir, environ
 from pathlib import Path
 from typing import Tuple
 
 from tabulate import tabulate
 
 from OceanWasp.top1kports import PORTS
+from OceanWasp.Util import Util
 
 try:
     from nmap import PortScanner
@@ -28,10 +30,6 @@ def msg(message: str) -> str:
     return "[+] {0}".format(message)
 
 
-def err_msg(message: str) -> str:
-    return "[!] {0}".format(message)
-
-
 def validate_input(args) -> ip_address:
     # determine if the input IP address is inface an IP
     ip = None
@@ -41,19 +39,19 @@ def validate_input(args) -> ip_address:
         if not args.target:
             # look for RHOST environ var
             if "RHOST" in environ.keys():
-                print(msg("Using Environment variable for IP address"))
+                print(Util().msg("Using Environment variable for IP address"))
                 ip = ip_address(environ["RHOST"])
         else:
             ip = ip_address(args.target)
 
     except ValueError:
-        print(err_msg("Argument or environment variable was not a valid IP address"))
+        print(Util().err_msg("Argument or environment variable was not a valid IP address"))
         sys.exit()
 
     # Input check file
     if args.markdown:
         if Path(args.markdown).is_dir():
-            print(err_msg("Given argument is a path and not a file"))
+            print(Util().err_msg("Given argument is a path and not a file"))
             sys.exit()
 
     return ip
@@ -147,6 +145,7 @@ def render_text_info(data: list) -> str:
 
     return output_string
 
+
 def insert_md_table(markdown: str, md_table: str) -> None:
     content = open(markdown, "r").read(-1)
 
@@ -163,6 +162,19 @@ def insert_md_table(markdown: str, md_table: str) -> None:
         m_file.write(content)
 
 
+def append_scan_log(app_name: str) -> None:
+    search_path = str(Path(curdir).joinpath("**/*scan_overview*.md"))
+    overview_path = [f for f in iglob(search_path, recursive=True)]
+
+    if not overview_path:
+        print(Util().msg("Did not locate scanning overview"))
+        return
+
+    log_string = "* {0} Scan executed".format(app_name)
+    with open(overview_path[0], "w+") as log:
+        log.write(log_string)
+
+
 def main():
     print("Executing OceanWasp version %s." % __version__)
 
@@ -175,18 +187,20 @@ def main():
     ip = validate_input(args)
 
     if not ip:
-        print(err_msg("Check IP argument"))
+        print(Util().err_msg("Check IP argument"))
         sys.exit(-1)
+
+    append_scan_log("OceanWasp")
 
     scan_ports = PORTS
     scanner = PortScanner()
 
-    print(msg("Performing scan of target {0}".format(str(ip))))
+    print(Util().msg("Performing scan of target {0}".format(str(ip))))
     scanner.scan(str(ip), ",".join(scan_ports))
 
     # Do not continue if the host was not up
     if scanner.scanstats()["uphosts"] == "0":
-        print(err_msg("Target host {0} does not appear to be up".format(str(ip))))
+        print(Util().err_msg("Target host {0} does not appear to be up".format(str(ip))))
         sys.exit()
 
     # create column and output data
@@ -194,18 +208,18 @@ def main():
 
     # if Output file given then write output to it
     if args.markdown:
-        print(msg("Writing markdown to file"))
+        print(Util().msg("Writing markdown to file"))
         md_table = render_md_table(columns, table)
 
-        #insert md table into document
+        # insert md table into document
         insert_md_table(args.markdown, md_table)
 
     # if text argument given then output to text file
     if args.text:
-        print(msg("Writing scan results to text file"))
+        print(Util().msg("Writing scan results to text file"))
         text = render_text_info(data_dict)
 
-        #if folder doesn't exist then create it
+        # if folder doesn't exist then create it
         if not Path(args.text).parent.exists():
             Path(args.text).parent.mkdir(parents=True)
 
@@ -213,7 +227,7 @@ def main():
             text_file.write("\n")
             text_file.write(text)
 
-    print(msg("Scan Results"))
+    print(Util().msg("Scan Results"))
     tabulate_table = render_tab_table(columns, table)
 
     print(tabulate_table)
