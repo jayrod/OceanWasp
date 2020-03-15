@@ -2,7 +2,7 @@
 
 """OceanWasp.OceanWasp: provides entry point main()."""
 
-__version__ = "0.3"
+__version__ = "0.4"
 
 import re
 import argparse
@@ -206,8 +206,8 @@ def main():
         text = render_text_info(data_dict)
 
         #if folder doesn't exist then create it
-        if not Path(args.txt).parent.exists():
-            Path(args.txt).parent.mkdir(parents=True)
+        if not Path(args.text).parent.exists():
+            Path(args.text).parent.mkdir(parents=True)
 
         with open(args.text, "a+") as text_file:
             text_file.write("\n")
