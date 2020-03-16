@@ -17,7 +17,7 @@ class Util():
             print(self.msg("Did not locate scanning overview"))
             return
 
-        log_string = "* {0} Scan executed".format(app_name)
+        log_string = "* {0} Scan executed\n".format(app_name)
         with open(overview_path[0], 'a+') as log:
             log.write(log_string)
 
