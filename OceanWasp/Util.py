@@ -18,7 +18,7 @@ class Util():
             return
 
         log_string = "* {0} Scan executed".format(app_name)
-        with open(overview_path[0], 'w+') as log:
+        with open(overview_path[0], 'a+') as log:
             log.write(log_string)
 
 
