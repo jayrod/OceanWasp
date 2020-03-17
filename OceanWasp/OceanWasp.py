@@ -178,7 +178,8 @@ def append_scan_log(app_name: str) -> None:
 def main():
     print("Executing OceanWasp version %s." % __version__)
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Initial Nmap scanner")
+
     parser.add_argument("--target", help="IP address for target.")
     parser.add_argument("--markdown", help="Markdown File to append data.")
     parser.add_argument("--text", help="Text File to append data.")
