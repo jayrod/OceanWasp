@@ -2,7 +2,7 @@
 
 """OceanWasp.OceanWasp: provides entry point main()."""
 
-__version__ = "0.5"
+__version__ = "0.6"
 
 import argparse
 import re
@@ -26,10 +26,6 @@ except ImportError:
     sys.exit()
 
 
-def msg(message: str) -> str:
-    return "[+] {0}".format(message)
-
-
 def validate_input(args) -> ip_address:
     # determine if the input IP address is inface an IP
     ip = None
@@ -45,7 +41,11 @@ def validate_input(args) -> ip_address:
             ip = ip_address(args.target)
 
     except ValueError:
-        print(Util().err_msg("Argument or environment variable was not a valid IP address"))
+        print(
+            Util().err_msg(
+                "Argument or environment variable was not a valid IP address"
+            )
+        )
         sys.exit()
 
     # Input check file
@@ -118,10 +118,6 @@ def scanner_to_table(scanner: PortScanner) -> Tuple[list, list, list]:
     return columns, full_table, all_hosts
 
 
-def render_md_table(columns: list, full_table: list) -> str:
-    return Table(columns, full_table).render()
-
-
 def render_tab_table(columns: list, full_table: list) -> str:
     return tabulate(full_table, headers=columns, tablefmt="fancy_grid")
 
@@ -146,35 +142,6 @@ def render_text_info(data: list) -> str:
     return output_string
 
 
-def insert_md_table(markdown: str, md_table: str) -> None:
-    content = open(markdown, "r").read(-1)
-
-    # regex
-    regex = r"\[\[\s?OceanWasp\s?\]\]"
-
-    # if there exists a tag then substitute our data into it
-    if re.findall(regex, content, re.IGNORECASE):
-        content = re.sub(regex, md_table, content, re.IGNORECASE)
-    else:
-        content += md_table
-
-    with open(markdown, "w") as m_file:
-        m_file.write(content)
-
-
-def append_scan_log(app_name: str) -> None:
-    search_path = str(Path(curdir).joinpath("**/*scan_overview*.md"))
-    overview_path = [f for f in iglob(search_path, recursive=True)]
-
-    if not overview_path:
-        print(Util().msg("Did not locate scanning overview"))
-        return
-
-    log_string = "* {0} Scan executed".format(app_name)
-    with open(overview_path[0], "w+") as log:
-        log.write(log_string)
-
-
 def main():
     print("Executing OceanWasp version %s." % __version__)
 
@@ -191,7 +158,7 @@ def main():
         print(Util().err_msg("Check IP argument"))
         sys.exit(-1)
 
-    append_scan_log("OceanWasp")
+    Util().append_scan_log("OceanWasp")
 
     scan_ports = PORTS
     scanner = PortScanner()
@@ -201,7 +168,9 @@ def main():
 
     # Do not continue if the host was not up
     if scanner.scanstats()["uphosts"] == "0":
-        print(Util().err_msg("Target host {0} does not appear to be up".format(str(ip))))
+        print(
+            Util().err_msg("Target host {0} does not appear to be up".format(str(ip)))
+        )
         sys.exit()
 
     # create column and output data
@@ -210,10 +179,10 @@ def main():
     # if Output file given then write output to it
     if args.markdown:
         print(Util().msg("Writing markdown to file"))
-        md_table = render_md_table(columns, table)
+        md_table = Markdown().render_md_table(columns, table)
 
         # insert md table into document
-        insert_md_table(args.markdown, md_table)
+        Markdown().insert_md_table(args.markdown, md_table)
 
     # if text argument given then output to text file
     if args.text:
