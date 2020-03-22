@@ -2,11 +2,7 @@
 
 """OceanWasp.OceanWasp: provides entry point main()."""
 
-<<<<<<< HEAD
-__version__ = "0.4"
-=======
 __version__ = "0.5"
->>>>>>> 0a56f8ff3e05098fce3417f0e864780458e8680c
 
 import argparse
 import re
@@ -224,11 +220,7 @@ def main():
         print(Util().msg("Writing scan results to text file"))
         text = render_text_info(data_dict)
 
-<<<<<<< HEAD
-        #if folder doesn't exist then create it
-=======
         # if folder doesn't exist then create it
->>>>>>> 0a56f8ff3e05098fce3417f0e864780458e8680c
         if not Path(args.text).parent.exists():
             Path(args.text).parent.mkdir(parents=True)
 
