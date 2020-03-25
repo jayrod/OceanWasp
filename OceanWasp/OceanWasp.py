@@ -2,7 +2,7 @@
 
 """OceanWasp.OceanWasp: provides entry point main()."""
 
-__version__ = "0.6"
+__version__ = "0.6.1"
 
 import argparse
 import re
@@ -17,6 +17,7 @@ from tabulate import tabulate
 
 from OceanWasp.top1kports import PORTS
 from OceanWasp.Util import Util
+from OceanWasp.markdown import Markdown
 
 try:
     from nmap import PortScanner
@@ -182,7 +183,7 @@ def main():
         md_table = Markdown().render_md_table(columns, table)
 
         # insert md table into document
-        Markdown().insert_md_table(args.markdown, md_table)
+        Markdown().insert_md_table(args.markdown, md_table, 'OceanWasp')
 
     # if text argument given then output to text file
     if args.text:
