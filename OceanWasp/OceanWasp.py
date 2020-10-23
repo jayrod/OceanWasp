@@ -9,15 +9,16 @@ import re
 import sys
 from glob import iglob
 from ipaddress import ip_address
-from os import curdir, environ
+from os import environ
 from pathlib import Path
 from typing import Tuple
 
+from rich.console import Console
 from tabulate import tabulate
 
+from OceanWasp.markdown import Markdown
 from OceanWasp.top1kports import PORTS
 from OceanWasp.Util import Util
-from OceanWasp.markdown import Markdown
 
 try:
     from nmap import PortScanner
@@ -132,10 +133,12 @@ def render_text_info(data: list) -> str:
 
         for port_info in item["open_ports"]:
             output_string += "\tPort : {0}\n".format(port_info["Port"])
-            output_string += "\tService Name: {0}\n".format(port_info["Service Name"])
+            output_string += "\tService Name: {0}\n".format(
+                port_info["Service Name"])
             output_string += "\tProduct : {0}\n".format(port_info["Product"])
             output_string += "\tVersion : {0}\n".format(port_info["Version"])
-            output_string += "\tExtra Info : {0}\n".format(port_info["Extra Info"])
+            output_string += "\tExtra Info : {0}\n".format(
+                port_info["Extra Info"])
             output_string += "\tPlatform Enumeration : {0}\n".format(
                 port_info["Platform Enumeration"]
             )
@@ -144,7 +147,8 @@ def render_text_info(data: list) -> str:
 
 
 def main():
-    print("Executing OceanWasp version %s." % __version__)
+    console = Console()
+    console.print("Executing OceanWasp version %s." % __version__, style="green")
 
     parser = argparse.ArgumentParser(description="Initial Nmap scanner")
 
@@ -170,7 +174,8 @@ def main():
     # Do not continue if the host was not up
     if scanner.scanstats()["uphosts"] == "0":
         print(
-            Util().err_msg("Target host {0} does not appear to be up".format(str(ip)))
+            Util().err_msg(
+                "Target host {0} does not appear to be up".format(str(ip)))
         )
         sys.exit()
 

@@ -4,5 +4,5 @@
 """OceanWasp.__main__: executed when OceanWasp directory is called as script."""
 
 
-from .OceanWasp import main
+from OceanWasp import main
 main()

@@ -30,6 +30,7 @@ setup(
     install_requires = [
         "markdown-table",
         "python-nmap",
+        "rich",
         "tabulate"
     ],
     version = version,
