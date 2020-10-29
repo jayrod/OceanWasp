@@ -21,6 +21,8 @@ class Markdown:
             Exceptions:
                 FileNotFounderror if markdown not found
         """
+        if not Path(markdown).exists():
+            return
 
         content = open(markdown, "r").read(-1)
 

@@ -8,13 +8,6 @@ import re
 from os.path import exists
 from setuptools import setup
 
-
-version = re.search(
-    '^__version__\s*=\s*"(.*)"',
-    open('OceanWasp/OceanWasp.py').read(),
-    re.M
-    ).group(1)
-
 if exists("README.md"):
     with open("README.md", "rb") as f:
         long_descr = f.read().decode("utf-8")
@@ -33,7 +26,7 @@ setup(
         "rich",
         "tabulate"
     ],
-    version = version,
+    version = '1.0.3',
     description = "Custom nmap initial enumeration tool",
     long_description = long_descr,
     author = "",

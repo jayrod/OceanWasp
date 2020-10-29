@@ -13,19 +13,14 @@ from os import environ
 from pathlib import Path
 from typing import Tuple
 
+from markdown_table import Table
+from nmap import PortScanner
 from rich.console import Console
 from tabulate import tabulate
 
 from OceanWasp.markdown import Markdown
 from OceanWasp.top1kports import PORTS
 from OceanWasp.Util import Util
-
-try:
-    from nmap import PortScanner
-    from markdown_table import Table
-except ImportError:
-    print("pip install dependencies")
-    sys.exit()
 
 
 def validate_input(args) -> ip_address:
